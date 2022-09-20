@@ -13,12 +13,14 @@ Seconds=$3
 
 echo "=== Establishing heartbeat check-in"
 
+EncodedPublicKey=$(echo $PublicKey | jq -R -r @uri)
+
 while true; do
 
   curl -s -X PUT \
     -o /dev/null \
     -H "X-API-KEY: $ReflectApiKey" \
-    https://api.reflect.run/v1/agents/$PublicKey/heartbeat
+    https://api.reflect.run/v1/agents/$EncodedPublicKey/heartbeat
 
   sleep $Seconds
 

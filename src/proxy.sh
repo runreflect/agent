@@ -24,4 +24,3 @@ echo "=== Running proxy at ${ProxyIp}:${ProxyPort}"
 
 ProxyConfig="socks -p${ProxyPort} -i${ProxyIp}"
 echo $ProxyConfig | $ProxyBinary &
-

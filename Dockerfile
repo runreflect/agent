@@ -36,4 +36,3 @@ WORKDIR /opt/reflect-agent/src
 
 # Entry point.
 CMD ["sh", "./entrypoint.sh"]
-

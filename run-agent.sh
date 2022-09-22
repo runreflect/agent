@@ -17,4 +17,3 @@ docker run --rm --cap-add net_admin -d \
   -e PublicPort=$PublicPort \
   -p $PublicPort:$PublicPort/udp \
   agent
-

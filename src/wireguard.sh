@@ -31,4 +31,3 @@ EOF
 echo "=== Bringing up Wireguard interface"
 
 wg-quick up $WireguardConfigFile
-

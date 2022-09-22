@@ -1,6 +1,8 @@
 
 *.swp
 
+# IntelliJ
+.idea
+
 # Mac
 .DS_Store
-

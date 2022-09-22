@@ -32,4 +32,3 @@ curl -s -X POST \
   https://api.reflect.run/v1/agents
 
 echo "=== Registration response in '$ResponseFile'"
-

@@ -19,4 +19,3 @@ echo $PrivateKey > $PrivateKeyOutfile
 echo $PublicKey > $PublicKeyOutfile
 
 echo "Wrote keys: priv=$PrivateKeyOutfile, pub=$PublicKeyOutfile"
-

@@ -28,6 +28,12 @@ This allows private web applications to be accessible, but only to Reflect's clo
 
 ## Installation
 
+The agent assumes a Linux host to run the container, and
+requires Linux kernel version 5.6 or later
+because it uses the host's Wireguard networking module.
+Additionally, since the agent runs as a container on the host,
+it requires Docker or Podman to be installed on the host.
+
 The simplest installation is to run the agent on a host
 that has both a public and private IP address,
 where the private IP address is on the same network subnet as the private web applications to be tested.

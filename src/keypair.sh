@@ -10,7 +10,7 @@ fi
 PrivateKeyOutfile=$1
 PublicKeyOutfile=$2
 
-echo "=== Generating keypair ==="
+echo "agent: generating keypair"
 
 PrivateKey=$(wg genkey)
 PublicKey=$(echo $PrivateKey | wg pubkey)
@@ -18,4 +18,4 @@ PublicKey=$(echo $PrivateKey | wg pubkey)
 echo $PrivateKey > $PrivateKeyOutfile
 echo $PublicKey > $PublicKeyOutfile
 
-echo "Wrote keys: priv=$PrivateKeyOutfile, pub=$PublicKeyOutfile"
+echo "agent: wrote keys (priv=$PrivateKeyOutfile, pub=$PublicKeyOutfile)"

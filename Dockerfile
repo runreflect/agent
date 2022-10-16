@@ -34,5 +34,9 @@ RUN chmod +x src/*.sh
 
 WORKDIR /opt/reflect-agent/src
 
+RUN apk add alpine-sdk && \
+  gcc -o udp-punch udp-punch.c && \
+  apk del alpine-sdk
+
 # Entry point.
 CMD ["sh", "./entrypoint.sh"]

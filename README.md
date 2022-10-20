@@ -9,7 +9,7 @@ This allows customers to use Reflect's cloud-based platform
 to create and run tests against private, non-publicly-accessible applications.
 
 The Reflect Agent runs as a docker container on a host within the private network.
-It establishes a [Wireguard](https://www.wireguard.com/) tunnel to Reflect's API
+It establishes a [Wireguard](https://www.wireguard.com/) tunnel via Reflect's API
 through which the Reflect browsers can reach applications in the private network.
 
 ## Background
@@ -33,15 +33,12 @@ requires Linux kernel version 5.6 or later
 because it uses the host's Wireguard networking module.
 Additionally, since the agent runs as a container on the host,
 it requires Docker or Podman to be installed on the host.
+Typically, the host will have a restricted network ACL as well.
 
-The simplest installation is to run the agent on a host
-that has both a public and private IP address,
-where the private IP address is on the same network subnet as the private web applications to be tested.
-The agent will bind to a UDP port on the public IP address and listen for incoming Reflect browser sessions.
-Typically, the host will have a restricted network ACL limited to allowing traffic only from Reflect.
-
-NOTE: installing the agent behind a NAT requires establishing a port-forwarding rule
-on the NAT for the UDP port that the agent binds to.
+The agent binds to a UDP port on the host's network interface and
+polls the Reflect API to identify Reflect browser sessions that need the agent.
+For each agent-based browser session in Reflect,
+the agent initiates a secure connection over Wireguard.
 
 To install the agent, you'll need `docker` installed, and then run:
 
@@ -58,16 +55,29 @@ which can be found on the __Settings__ page in the Reflect web UI.
 
 Additionally, you can optionally specify the public UDP port that the agent
 will bind to in order to listen for connections from Reflect cloud browsers.
+If you're running the agent on a host behind a NAT,
+you can specify the `-n` flag to improve the reliability of the connection.
 
-Then, run:
+Then, run the agent using the following command usage options:
 
 ```
-$ ./run-agent.sh <reflect-api-key> [UDP port]
+$ ./run-agent.sh -k <reflect_api_key> [-p <public_port] [-n]
+	Runs the Reflect Agent and connects to the specified Reflect account
+
+	-k reflect_api_key
+		The API key for the Reflect account
+
+	-p public_port
+		The public port on the host machine, default 10009
+
+	-n
+		Use a persistent connection to Reflect when behind a NAT, default false
 ```
 
 The agent will generate a new keypair when it launches and
 register with Reflect using your account API key.
-Then, it will listen for connections from Reflect browser sessions indefinitely.
+Then, it will poll the Reflect API to learn of new agent-based browser sessions
+and establish a connection to the browser sessions directly.
 
 NOTE: Reflect only supports a single agent per account.
 As a result, you should not run multiple agents at once.

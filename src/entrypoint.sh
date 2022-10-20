@@ -12,31 +12,37 @@ if [ -z "$PublicPort" ]; then
   exit 1
 fi
 
-echo "=== Reflect Agent ==="
+if [ -z "$WithNat" ]; then
+  echo "Missing environment variable 'WithNat'"
+  exit 1
+fi
+
+echo "agent: starting"
 
 PrivateKeyFile="private.key"
 PublicKeyFile="public.key"
-RegistrationResponseFile="response.json"
+RegistrationResponseFile="registration-response.json"
+HeartbeatIntervalSecs=5
 
 ./keypair.sh $PrivateKeyFile $PublicKeyFile
 
+PrivateKey=$(cat $PrivateKeyFile)
 PublicKey=$(cat $PublicKeyFile)
-./register.sh $ReflectApiKey $PublicKey $PublicPort $RegistrationResponseFile
+
+./register.sh $ReflectApiKey \
+  $PublicKey $PublicPort \
+  $RegistrationResponseFile
 
 ProxyIp=$(jq -r '.proxyIp' $RegistrationResponseFile)
 ProxyPort=$(jq -r '.proxyPort' $RegistrationResponseFile)
 ./proxy.sh $ProxyIp $ProxyPort
 
-WireguardIp=$(jq -r '.privateIp' $RegistrationResponseFile)
-PrivateKey=$(cat $PrivateKeyFile)
-PeerPublicKey=$(jq -r '.sessionsPublicKey' $RegistrationResponseFile)
-PeerIps=$(jq -r '.sessionsIpsNetmask | join(", ")' $RegistrationResponseFile)
-./wireguard.sh $WireguardIp $PublicPort $PrivateKey $PeerPublicKey $PeerIps
-
-HeartbeatIntervalSecs=600
-./heartbeat.sh $ReflectApiKey $PublicKey $HeartbeatIntervalSecs
+./heartbeat.sh $ReflectApiKey \
+  $PrivateKey $PublicKey $PublicPort \
+  $HeartbeatIntervalSecs &
 
 sleep infinity &
 wait $!
 
-echo "done"
+# Never hit.
+echo "agent: done"

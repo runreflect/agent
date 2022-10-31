@@ -2,8 +2,6 @@
 
 set -e
 
-# This inherits the WithNat environment variable from entrypoint.sh.
-
 if [ $# -lt 4 ]; then
   echo "usage: $0 <wireguard-ip> <private-key> <wireguard-port> <peers-file>"
   exit 1
@@ -35,19 +33,14 @@ cat $PeersFile | \
   while read Key AllowedIp EndpointIp EndpointPort; do
     Endpoint="${EndpointIp}:${EndpointPort}"
 
-    if [ "${WithNat}" == "true" ]; then
-      echo "agent: sending datagram to $Endpoint"
-      ./udp-punch $UdpPunchIp $WireguardPort $EndpointIp $EndpointPort
-    fi
+    echo "agent: sending datagram to $Endpoint"
+    ./udp-punch $UdpPunchIp $WireguardPort $EndpointIp $EndpointPort
 
     echo "[Peer]" >> $WireguardConfigFile
     echo "PublicKey = $Key" >> $WireguardConfigFile
     echo "AllowedIPs = $AllowedIp" >> $WireguardConfigFile
     echo "Endpoint = $Endpoint" >> $WireguardConfigFile
-
-    if [ "${WithNat}" == "true" ]; then
-      echo "PersistentKeepalive = 25" >> $WireguardConfigFile
-    fi
+    echo "PersistentKeepalive = 25" >> $WireguardConfigFile
 
     echo >> $WireguardConfigFile
   done

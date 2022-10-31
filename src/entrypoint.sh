@@ -12,11 +12,6 @@ if [ -z "$PublicPort" ]; then
   exit 1
 fi
 
-if [ -z "$WithNat" ]; then
-  echo "Missing environment variable 'WithNat'"
-  exit 1
-fi
-
 echo "agent: starting"
 
 PrivateKeyFile="private.key"

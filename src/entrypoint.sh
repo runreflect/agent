@@ -16,25 +16,17 @@ echo "agent: starting"
 
 PrivateKeyFile="private.key"
 PublicKeyFile="public.key"
-RegistrationResponseFile="registration-response.json"
-HeartbeatIntervalSecs=5
+MessagesFile="messages.txt"
 
 ./keypair.sh $PrivateKeyFile $PublicKeyFile
 
 PrivateKey=$(cat $PrivateKeyFile)
 PublicKey=$(cat $PublicKeyFile)
 
-./register.sh $ReflectApiKey \
-  $PublicKey $PublicPort \
-  $RegistrationResponseFile
+touch $MessagesFile
+./connect.sh $ReflectApiKey $PublicKey $MessagesFile &
 
-ProxyIp=$(jq -r '.proxyIp' $RegistrationResponseFile)
-ProxyPort=$(jq -r '.proxyPort' $RegistrationResponseFile)
-./proxy.sh $ProxyIp $ProxyPort
-
-./heartbeat.sh $ReflectApiKey \
-  $PrivateKey $PublicKey $PublicPort \
-  $HeartbeatIntervalSecs &
+./monitor.sh $PrivateKey $PublicPort $MessagesFile &
 
 sleep infinity &
 wait $!

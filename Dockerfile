@@ -10,7 +10,7 @@ RUN apk --no-cache add \
   ip6tables \
   inotify-tools \
   jq \
-  curl
+  websocat
 
 # Install 3proxy from source
 ENV THREEPROXY_VERSION=0.9.4

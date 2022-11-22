@@ -22,7 +22,7 @@ while true; do
 
   CurrentSessions=$(tail -1 $MessagesFile)
 
-  if [ "$CurrentSessions" != "$LastSessions" ]; then
+  if [ "$CurrentSessions" != "" ] && [ "$CurrentSessions" != "$LastSessions" ]; then
     # Update the proxy and wireguard configuration since the sessions have changed.
 
     if [ "$ProxyStarted" == "false" ]; then

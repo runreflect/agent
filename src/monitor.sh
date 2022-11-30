@@ -1,38 +1,41 @@
 #!/bin/bash
 
+# Exit if either the proxy or wireguard commands fail.
 set -e
 
-if [ $# -lt 3 ]; then
-  echo "usage: $0 <private-key> <public-port> <messages-file>"
+if [ $# -lt 4 ]; then
+  echo "usage: $0 <private-key> <public-port> <messages-file> <sessions-file>"
   exit 1
 fi
 
 PrivateKey=$1
 PublicPort=$2
 MessagesFile=$3
+SessionsFile=$4
 
 SleepTime="0.3"
-SessionsFile="sessions.json"
-ProxyStarted="false"
 LastSessions=""
 
 echo "agent: activating monitor"
 
-while true; do
+function isProxyAlive() {
+  [[ -z $ProxyPid ]] || [[ $(ps | awk '{print $1}' | grep $ProxyPid) ]]
+}
 
-  CurrentSessions=$(tail -1 $MessagesFile)
+while isProxyAlive; do
+
+  CurrentSessions=$(tail -1 $MessagesFile 2>/dev/null)
 
   if [ "$CurrentSessions" != "" ] && [ "$CurrentSessions" != "$LastSessions" ]; then
     # Update the proxy and wireguard configuration since the sessions have changed.
 
-    if [ "$ProxyStarted" == "false" ]; then
+    if [ -z "$ProxyPid" ]; then
       # Eventually, this could be killed and relaunched if the proxy IP changed.
       # But that should be so rare as to be easily handled by restarting the agent.
       ProxyIp=$(echo "$CurrentSessions" | jq -r '.proxyIp')
       ProxyPort=$(echo "$CurrentSessions" | jq -r '.proxyPort')
-      ./proxy.sh $ProxyIp $ProxyPort
-
-      ProxyStarted="true"
+      ./proxy.sh $ProxyIp $ProxyPort &
+      ProxyPid=$!
     fi
 
     WireguardIp=$(echo "$CurrentSessions" | jq -r '.privateIp')

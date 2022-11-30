@@ -29,14 +29,10 @@ RUN apk add alpine-sdk && \
   rm -rf $DIR && \
   apk del alpine-sdk
 
-COPY src/ src/
-RUN chmod +x src/*.sh
-
 WORKDIR /opt/reflect-agent/src
 
-RUN apk add alpine-sdk && \
-  gcc -o udp-punch udp-punch.c && \
-  apk del alpine-sdk
+# Copy in all bash scripts.
+COPY src/ .
 
 # Entry point.
 CMD ["sh", "./entrypoint.sh"]

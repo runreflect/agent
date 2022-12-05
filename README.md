@@ -8,7 +8,7 @@ from an internal local area network back to Reflect.
 This allows customers to use Reflect's cloud-based platform
 to create and run tests against private, non-publicly-accessible applications.
 
-The Reflect Agent runs as a docker container on a host within the private network.
+The Reflect Agent runs as a docker container (or directly on the host) within the private network.
 It establishes a [Wireguard](https://www.wireguard.com/) tunnel via Reflect's API
 through which the Reflect browsers can reach applications in the private network.
 
@@ -28,15 +28,19 @@ This allows private web applications to be accessible, but only to Reflect's clo
 
 ## Installation
 
-The agent assumes a Linux host to run the container, and
-requires Linux kernel version 5.6 or later
-because it uses the host's Wireguard networking module.
-Additionally, since the agent runs as a container on the host,
+The default installation assumes a Linux host with kernel version 5.6 or later,
+which means the Wireguard network module is included in the kernel.
+However, when running in `--local` mode (see below),
+a Mac OS X host with the Wireguard utilities installed can also be used.
+
+### Docker
+
+When running the agent as a container (again, the default),
 it requires Docker or Podman to be installed on the host.
 Typically, the host will have a restricted network ACL as well.
 
 The agent binds to a UDP port on the host's network interface and
-polls the Reflect API to identify Reflect browser sessions that need the agent.
+establishes a websocket to the Reflect API to be notified when new browser sessions are launched in Reflect.
 For each agent-based browser session in Reflect,
 the agent initiates a secure connection over Wireguard.
 
@@ -48,6 +52,25 @@ $ ./build-agent.sh
 
 (In the future, Reflect may release an official container image publicly.)
 
+### Local
+
+Alternatively, you can run the agent directly on your host machine running Mac OS X.
+In this mode, the agent runs as a collection of bash scripts,
+but requires several utility program dependencies to be installed.
+
+You can check whether the dependencies are installed using:
+
+```
+$ ./local/check-dependencies.sh
+```
+
+Most dependencies are easily installed using a package manager, such as `brew`.
+However, there are installation scripts for some dependencies, such as:
+
+```
+$ ./local/install-dependency-3proxy.sh
+```
+
 ## Running the Agent
 
 To run the agent, you'll need your Reflect account API key,
@@ -55,28 +78,29 @@ which can be found on the __Settings__ page in the Reflect web UI.
 
 Additionally, you can optionally specify the public UDP port that the agent
 will bind to in order to listen for connections from Reflect cloud browsers.
-If you're running the agent on a host behind a NAT,
-you can specify the `-n` flag to improve the reliability of the connection.
 
 Then, run the agent using the following command usage options:
 
 ```
-$ ./run-agent.sh -k <reflect_api_key> [-p <public_port] [-n]
+$ ./run-agent.sh [--local] -k <reflect_api_key> [-p <public_port>]
 	Runs the Reflect Agent and connects to the specified Reflect account
+
+	--local
+		Runs the agent without Docker isolation directly on the host machine.
+		This requires installing several utility program dependencies.
+		See the `local/check-dependency.sh` and `local/install...` scripts.
+		NOTE: this mode requires 'sudo' since it modifies network interfaces.
 
 	-k reflect_api_key
 		The API key for the Reflect account
 
 	-p public_port
 		The public port on the host machine, default 10009
-
-	-n
-		Use a persistent connection to Reflect when behind a NAT, default false
 ```
 
 The agent will generate a new keypair when it launches and
 register with Reflect using your account API key.
-Then, it will poll the Reflect API to learn of new agent-based browser sessions
+Then, it will listen for messages from the Reflect API to learn of new agent-based browser sessions
 and establish a connection to the browser sessions directly.
 
 NOTE: Reflect only supports a single agent per account.
@@ -91,8 +115,9 @@ To stop the agent, run:
 $ ./stop-agent.sh
 ```
 
+or, press CTRL+C to terminate the agent when you're running in `--local` mode.
+
 ## Support
 
 For questions about using the Reflect Agent with your Reflect account,
 please email us at support@reflect.run and we'll be glad to assist.
-

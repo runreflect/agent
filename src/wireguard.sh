@@ -12,8 +12,7 @@ PrivateKey=$2
 WireguardPort=$3
 PeersFile=$4
 
-UdpPunchIp="0.0.0.0"
-WireguardConfigFile="/etc/wireguard/wg0.conf"
+WireguardConfigFile="/tmp/wg0.conf"
 
 echo "agent: installing wireguard ($WireguardConfigFile) for $WireguardIp:$WireguardPort"
 
@@ -33,9 +32,6 @@ cat $PeersFile | \
   while read Key AllowedIp EndpointIp EndpointPort; do
     Endpoint="${EndpointIp}:${EndpointPort}"
 
-    echo "agent: sending datagram to $Endpoint"
-    ./udp-punch $UdpPunchIp $WireguardPort $EndpointIp $EndpointPort
-
     echo "[Peer]" >> $WireguardConfigFile
     echo "PublicKey = $Key" >> $WireguardConfigFile
     echo "AllowedIPs = $AllowedIp" >> $WireguardConfigFile
@@ -47,7 +43,7 @@ cat $PeersFile | \
 
 echo "agent: toggling wireguard interface"
 
-IsRunning=$(wg | wc -c) # Hack to determine if it's running
+IsRunning=$(wg | wc -c | awk '{ print $1 }') # Hack to determine if it's running
 if [ "$IsRunning" != "0" ]; then
   wg-quick down $WireguardConfigFile
 fi

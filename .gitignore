@@ -6,3 +6,9 @@
 
 # Mac
 .DS_Store
+
+# Reflect Agent temporary files
+private.key
+public.key
+messages.txt
+sessions.json

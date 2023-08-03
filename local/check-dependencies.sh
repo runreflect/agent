@@ -4,6 +4,7 @@ echo "Verifying agent dependencies"
 echo "-----------------------------"
 
 ExitCode=0
+AutoInstall=$1
 
 function pad() {
   Result="                  $1"
@@ -17,6 +18,10 @@ function passed() {
 function failed() {
   ExitCode=1
   echo -e "\xE2\x9D\x8C failed"
+}
+
+function install() {
+  /bin/sh -c "./install-dependency-$1.sh"
 }
 
 function missingCommands() {
@@ -34,9 +39,16 @@ function checkDependency() {
   Missing=$(missingCommands $@)
 
   echo -ne "${Name}: "
-  if [ $Missing ]; then failed ; else passed ; fi
+  if [ $Missing ] && [ $AutoInstall ] && [ $AutoInstall == "install" ];
+    then install $Name ;
+  elif [ $Missing ];
+    then failed ;
+  else
+    passed ;
+  fi
 }
 
+checkDependency "homebrew" "brew"
 checkDependency "ifconfig" "ifconfig"
 checkDependency "wireguard-tools" "wg" "wg-quick"
 checkDependency "jq" "jq"

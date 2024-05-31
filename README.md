@@ -50,6 +50,12 @@ To install the agent, you'll need `docker` installed, and then run:
 $ ./build-agent.sh
 ```
 
+NOTE: On Windows, the bash script above will likely not work.
+To build the agent for Windows, run the Docker command directly:
+```
+docker build -t agent .
+```
+
 (In the future, Reflect may release an official container image publicly.)
 
 ### Local
@@ -96,6 +102,12 @@ $ ./run-agent.sh [--local] -k <reflect_api_key> [-p <public_port>]
 
 	-p public_port
 		The public port on the host machine, default 10009
+```
+
+NOTE: On Windows, the bash script above will likely not work.
+To run the agent for Windows, run the Docker command directly:
+```
+docker run --rm --cap-add net_admin -d --name agent -e ReflectApiKey=<API_KEY> -e PublicPort=10123 -p 10123:10123/udp agent
 ```
 
 The agent will generate a new keypair when it launches and

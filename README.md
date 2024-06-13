@@ -71,10 +71,15 @@ $ ./local/check-dependencies.sh
 ```
 
 Most dependencies are easily installed using a package manager, such as `brew`.
-However, there are installation scripts for some dependencies, such as:
+However, there are installation scripts for all dependencies, such as:
 
 ```
 $ ./local/install-dependency-3proxy.sh
+```
+
+You can automatically install all missing dependencies by passing in the install flag
+```
+$ ./local/check-dependencies.sh install
 ```
 
 ## Running the Agent
